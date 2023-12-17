@@ -1,6 +1,6 @@
 {
   "name": "inn-confirm-dialog",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A small javascript library for crating a confirma dialog to be used with htmx",
   "main": "confirmDialog.min.js",
   "scripts": {
