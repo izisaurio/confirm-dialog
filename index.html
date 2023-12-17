@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Confirm Dialog Example</title>
+    <script src="confirmDialog.js"></script>
+    <script>
+        function test() {
+            const dialog = new ConfirmDialog({
+                lang: 'spanish'
+            });
+            // Use the ConfirmDialog library to display a confirmation dialog
+            dialog.show('Borrar a Isaac?').then((result) => {
+                console.log(result.ok);
+            });
+        }
+    </script>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <!-- Your HTML content goes here -->
+    <button onclick="test()">Test</button>
+    <!-- Your HTML content goes here -->
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "inn-confirm-dialog",
+  "version": "1.0.1",
+  "description": "A small javascript library for crating a confirma dialog to be used with htmx",
+  "main": "confirmDialog.min.js",
+  "scripts": {
+    "start": "http-server",
+    "minify": "uglifyjs confirmDialog.js -o confirmDialog.min.js"
+  },
+  "author": "izisaurio <izi.isaac@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "uglify-js": "^3.17.4"
+  }
+}
