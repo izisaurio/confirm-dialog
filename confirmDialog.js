@@ -1,217 +1,171 @@
-/**
- * Represents a confirm dialog.
- */
-class ConfirmDialog {
+// Confirm Dialog web component
+class ConfirmDialog extends HTMLElement {
+    constructor() {
+        super();
+
+        // Create a shadow root
+        this.attachShadow({ mode: 'open' });
+
+        // Component styles
+        const css = /*css*/`
+            .confirm-dialog-background {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.35);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-family: system-ui, sans-serif;
+                z-index: 99999;
+            }
+        
+            .confirm-dialog-message {
+                box-sizing: border-box;
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                width: 300px;
+                background-color: white;
+                border-radius: 4px;
+                overflow: hidden;
+                opacity: 0;
+                transform: translateY(-15px);
+                transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            }
+
+            @media (min-width: 768px) {
+                .confirm-dialog-message {
+                    max-width: 480px;
+                    min-width: 360px;
+                }
+            }
+
+            .confirm-dialog-message.show {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            .confirm-dialog-message p {
+                padding: 16px;
+            }
+
+            .confirm-dialog-message div {
+                display: flex;
+            }
+
+            .confirm-dialog-message button {
+                flex: 1;
+            }
+
+            .confirm-dialog-message button {
+                height: 42px;
+                background: none;
+                border: none;
+                outline: none;
+                border-top: 1px solid #f2f2f2;
+                cursor: pointer;
+            }
+
+            .confirm-dialog-message button#confirm-dialog-ok {
+                background-color: var(--confirm-dialog-ok-color, #add8e6);
+            }
+
+            .confirm-dialog-message button:hover {
+                box-shadow: 0 0 20px 10px rgba(0, 0, 0, 0.05) inset;
+            }
+        `;
+
+        // Component html template
+        const html = /*html*/`
+            <div class="confirm-dialog-background">
+                <div id="confirm-dialog-message" class="confirm-dialog-message">
+                    <p id="confirm-dialog-message-text">Confirm?</p>
+                    <div>
+                        <button id="confirm-dialog-ok">Ok</button>
+                        <button id="confirm-dialog-cancel">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Define the template
+        const template = document.createElement('template');
+        template.innerHTML = `<style>${css}</style>${html}`;
+
+        // Clone the template content and append it to the shadow root
+        const instance = template.content.cloneNode(true);
+        this.shadowRoot.appendChild(instance);
+
+        // Get references to elements
+        this.message = this.shadowRoot.querySelector('#confirm-dialog-message');
+        this.messageText = this.shadowRoot.querySelector('#confirm-dialog-message-text');
+        this.ok = this.shadowRoot.querySelector('#confirm-dialog-ok');
+        this.cancel = this.shadowRoot.querySelector('#confirm-dialog-cancel');
+
+        // Add event listeners to buttons
+        this.ok.addEventListener('click', () => {
+            this.dispatchEvent(new CustomEvent('ok'));
+            this.close();
+        });
+        this.cancel.addEventListener('click', () => {
+            this.dispatchEvent(new CustomEvent('cancel'));
+            this.close();
+        });
+    }
+
+    connectedCallback() {
+        this.messageText.textContent = this.getAttribute('message');
+        this.ok.textContent = this.getAttribute('ok');
+        this.cancel.textContent = this.getAttribute('cancel');
+        setTimeout(() => {
+            this.message.classList.add('show');
+        }, 50);
+    }
+
+    close() {
+        // Dispatch a close event
+        this.dispatchEvent(new CustomEvent('close'));
+        // Remove the component from the DOM
+        this.message.classList.remove('show');
+        setTimeout(() => {
+            this.remove();
+        }, 300);
+    }
+}
+
+customElements.define('confirm-dialog', ConfirmDialog);
+
+class ConfirmDialogModal {
     constructor(options) {
-        /**
-         * Default options
-         */
+        //Message default values
         const defaultOptions = {
-            lang: 'english',
-            subtitle: undefined,
+            message: 'Do you want to confirm this action?',
+            ok: 'Ok',
+            cancel: 'Cancel'
         };
         this.options = Object.assign(defaultOptions, options);
-
-        /**
-         * The language object containing messages in different languages.
-         */
-        this.language = {
-            english: {
-                message: "Confirm this action?",
-                ok: "OK",
-                cancel: "Cancel"
-            },
-            spanish: {
-                message: "¿Confirmar esta acción?",
-                ok: "Aceptar",
-                cancel: "Cancelar"
-            },
-            german: {
-                message: "Diese Aktion bestätigen?",
-                ok: "OK",
-                cancel: "Abbrechen"
-            },
-            french: {
-                message: "Confirmer cette action ?",
-                ok: "OK",
-                cancel: "Annuler"
-            },
-            portuguese: {
-                message: "Confirmar esta ação?",
-                ok: "OK",
-                cancel: "Cancelar"
-            }
-        };
-        
-        /**
-         * The background element of the dialog.
-         * @type {HTMLDivElement}
-         */
-        this.background = document.createElement('div');
-
-        /**
-         * The message element of the dialog.
-         * @type {HTMLDivElement}
-         */
-        this.message = document.createElement('div');
-        this.message.textContent = this.language[options.lang].message;
-
-        /**
-         * The subtitle element of the dialog.
-         * @type {HTMLDivElement}
-         */
-        this.subtitle = document.createElement('div');
-        this.subtitle.textContent = options.subtitle ?? '';
-
-        /**
-         * The message element of the dialog buttons container.
-         * @type {HTMLDivElement}
-         */
-        this.actions = document.createElement('div');
-
-        /**
-         * The confirm button element of the dialog.
-         * @type {HTMLButtonElement}
-         */
-        this.confirmButton = document.createElement('button');
-        this.confirmButton.textContent = this.language[options.lang].ok;
-
-        /**
-         * The cancel button element of the dialog.
-         * @type {HTMLButtonElement}
-         */
-        this.cancelButton = document.createElement('button');
-        this.cancelButton.textContent = this.language[options.lang].cancel;
-
-        /**
-         * Styles
-         */
-        this.background.style.position = 'fixed';
-        this.background.style.display = 'flex';        
-        this.background.style.justifyContent = 'center';
-        this.background.style.alignItems = 'center';
-        this.background.style.top = '0';
-        this.background.style.left = '0';
-        this.background.style.width = '100%';
-        this.background.style.height = '100%';
-        this.background.style.zIndex = '9999';
-        this.background.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
-
-        this.message.style.boxSizing = 'border-box';
-        this.message.style.position = 'relative';
-        this.message.style.display = 'flex';
-        this.message.style.flexDirection = 'column';
-        this.message.style.alignItems = 'center';
-        this.message.style.justifyContent = 'center';
-        this.message.style.gap = '25px';
-        this.message.style.backgroundColor = '#f2f2f2';
-        this.message.style.borderRadius = '5px';
-        this.message.style.fontSize = '1.4rem';
-        this.message.style.width = '350px';
-        this.message.style.minHeight = '150px';
-        this.message.style.margin = 'auto';
-        this.message.style.padding = '30px';
-        this.message.style.transition = 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out';
-        this.message.style.transform = 'translateY(-25px)';
-        this.message.style.opacity = '0.3';
-
-        this.actions.style.display = 'flex';
-        this.actions.style.justifyContent = 'end';
-        this.actions.style.gap = '15px';
-        this.actions.style.marginTop = '10px';
-
-        this.subtitle.style.fontSize = '1.1rem';
-
-        this.confirmButton.style.boxSizing = 'border-box';
-        this.confirmButton.style.padding = '8px 16px';
-        this.confirmButton.style.borderRadius = '4px';
-        this.confirmButton.style.backgroundColor = '#007BFF';
-        this.confirmButton.style.color = '#fff';
-        this.confirmButton.style.border = 'none';
-        this.confirmButton.style.cursor = 'pointer';
-        this.confirmButton.style.outline = 'none';
-        this.confirmButton.style.fontSize = '1.05rem';
-
-        this.cancelButton.style.boxSizing = 'border-box';
-        this.cancelButton.style.padding = '8px 16px';
-        this.cancelButton.style.borderRadius = '4px';
-        this.cancelButton.style.backgroundColor = '#808080';
-        this.cancelButton.style.color = '#fff';
-        this.cancelButton.style.border = 'none';
-        this.cancelButton.style.cursor = 'pointer';
-        this.cancelButton.style.outline = 'none';
-        this.cancelButton.style.fontSize = '1.05rem';
-
-        /**
-         * Hover effects
-         */
-        this.confirmButton.addEventListener('mouseover', function() {
-            this.style.backgroundColor = '#0056b3'; // darker blue when hovered
-        });        
-        this.confirmButton.addEventListener('mouseout', function() {
-            this.style.backgroundColor = '#007BFF'; // original blue when not hovered
-        });
-
-        this.cancelButton.addEventListener('mouseover', function() {
-            this.style.backgroundColor = '#5a5a5a'; // darker gray when hovered
-        });        
-        this.cancelButton.addEventListener('mouseout', function() {
-            this.style.backgroundColor = '#808080'; // original gray when not hovered
-        }); 
+        //Message element
+        this.message = document.createElement('confirm-dialog');
+        this.message.setAttribute('message', this.options.message);
+        this.message.setAttribute('ok', this.options.ok);
+        this.message.setAttribute('cancel', this.options.cancel);
     }
 
-    /**
-     * Adds the dialog to the DOM.
-     */
-    addToDOM() {       
-        this.background.appendChild(this.message);
-        this.message.appendChild(this.actions);
-        this.actions.appendChild(this.cancelButton);
-        this.actions.appendChild(this.confirmButton);
-        if (this.options.subtitle) {
-            this.subtitle.textContent = this.options.subtitle;
-            this.message.insertBefore(this.subtitle, this.actions);
-        }
-        document.body.appendChild(this.background);
-
-        // Trigger the transition by applying a small delay
-        setTimeout(() => {
-            this.message.style.transform = 'translateY(0px)';
-            this.message.style.opacity = '1';
-        }, 10);
-    }
-
-    /**
-     * Shows the dialog and starts the promise.
-     */
-    show(subtitle) {
-        this.options.subtitle = subtitle;
-        this.addToDOM();
+    //Display the message
+    show(message) {
+        this.message.setAttribute('message', message);
+        document.body.appendChild(this.message);
 
         return new Promise((resolve, _) => {
-            this.confirmButton.addEventListener('click', () => {
-                this.resolvePromise(resolve, {
-                    ok: true
-                });
+            this.message.addEventListener('ok', () => {
+                resolve(true);
             });
-
-            this.cancelButton.addEventListener('click', () => {
-                this.resolvePromise(resolve, {
-                    ok: false
-                });
+            this.message.addEventListener('cancel', () => {
+                resolve(false);
             });
         });
-    }
-
-    /**
-     * Resolve Promise
-     */
-    resolvePromise(resolve, status) {
-        this.message.style.transform = 'translateY(-25px)';
-        this.message.style.opacity = '0.3';
-        setTimeout(() => {
-            document.body.removeChild(this.background);
-            resolve(status);
-        }, 300);
     }
 }

@@ -5,7 +5,7 @@
   "main": "confirmDialog.min.js",
   "scripts": {
     "start": "http-server",
-    "minify": "uglifyjs confirmDialog.js -o confirmDialog.min.js"
+    "minify": "uglifyjs ConfirmDialog.js -o ConfirmDialog.min.js"
   },
   "author": "izisaurio <izi.isaac@gmail.com>",
   "license": "MIT",
