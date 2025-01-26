@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Confirm Dialog Example</title>
-    <script src="ConfirmDialog.js"></script>
+    <link rel="stylesheet" href="confirm-dialog.css" />
+    <script src="confirm-dialog.js"></script>
     <style>
         body {
             font-family: system-ui, sans-serif;
@@ -16,12 +17,10 @@
     <!-- Your HTML content goes here -->
     <script>
         function test() {
-            const dialog = new ConfirmDialogModal({
-                ok: 'Aceptar',
-                cancel: 'Cancelar',
-            });
-            // Use the ConfirmDialog library to display a confirmation dialog
-            dialog.show('Borrar a Isaac?').then((result) => {
+            const dialog = ConfirmDialog.show({
+                text: 'Hola ConfirmDialog',
+                warning: true
+            }).then((result) => {
                 console.log(result);
             });
         }
