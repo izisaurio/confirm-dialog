@@ -2,6 +2,9 @@
 .cd-sa {
     padding: 26px;
     background-color: #fff;
+    width: 140px;
+    height: 140px;
+    box-sizing: border-box;
 }
 
 /* Success */

@@ -12,6 +12,7 @@ const ConfirmDialog = {
             cancelText: 'Cancelar',
             cancelClass: '',
             modalClass: '',
+            boxClass: '',
             success: false,
             warning: false,
             error: false,
@@ -76,10 +77,10 @@ const ConfirmDialog = {
         //Html template
         const template = `
             <div id="cd-modal" class="cd-modal ${options.modalClass}">
-                <div class="cd-box">
-                    <div class="cd-content ${options.textClass}">
+                <div class="cd-box ${options.boxClass}">
+                    <div class="cd-content">
                         ${icons}
-                        <div>${options.text}</div>
+                        <div class="cd-text ${options.textClass}">${options.text}</div>
                     </div>
                     <div class="cd-buttons">
                         ${ok}${useCancel}
@@ -101,15 +102,14 @@ const ConfirmDialog = {
         //Return promise
         return new Promise((resolve, _) => {
 
-            //Add events
-            const okButton = document.getElementById('cd-ok');
-            okButton.addEventListener('click', () => {
+            //Ok click true
+            document.getElementById('cd-ok').addEventListener('click', () => {
                 remove();
                 resolve(true)
             });
             if (options.useCancel) {
-                const cancelButton = document.getElementById('cd-cancel');
-                cancelButton.addEventListener('click', () => {
+                //Cancel click false
+                document.getElementById('cd-cancel').addEventListener('click', () => {
                     remove();
                     resolve(false);
                 });
